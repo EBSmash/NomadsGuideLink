@@ -4,7 +4,7 @@ internal object NGlinkController: Plugin() {
 
     override fun onLoad() {
         // Load any modules, commands, or HUD elements here
-
+        modules.add(NGlink)
     }
 
     override fun onUnload() {

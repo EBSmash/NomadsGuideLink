@@ -16,7 +16,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import net.minecraft.entity.projectile.ProjectileHelper
 import net.minecraft.init.Items
-import net.minecraft.network.play.client.CPacketPlayerDigging
+import net.minecraft.network.play.client.*
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.event.entity.ProjectileImpactEvent
 import net.minecraftforge.event.world.WorldEvent
@@ -38,19 +38,26 @@ internal object NGlink : PluginModule(
    private val timer = TickTimer(TimeUnit.SECONDS)
 
 
-   val filename = "NGLink.txt"
-   var fileObject = File(filename)
+   val FLocation = "NGLinkLocation.txt"
+   var fileObject1 = File(FLocation)
+   val FRotation = "NGLinkRotation.txt"
+   var fileObject2 = File(FRotation)
+   val FPearls = "NGLinkPearls.txt"
+   var fileObject3 = File(FRotation)
+
 
 
     init {
         onEnable {
             //check if we have a file to write info to
-                var fileExists = fileObject.exists()
+                var fileExists = fileObject1.exists() && fileObject2.exists() && fileObject3.exists()
                     if(fileExists){
                         return@onEnable
                     }
                     else {
-                        File(filename).createNewFile()
+                        File(FLocation).createNewFile()
+                        File(FRotation).createNewFile()
+                        File(FPearls).createNewFile()
                     }
                 }
         //timer
@@ -61,8 +68,8 @@ internal object NGlink : PluginModule(
         safeListener<PlayerTravelEvent> {
             if(countPos > delay*20) {
                 countPos = 0
-                File(filename).writeText("L " + Companion.mc.player.posX.toString() + " " + Companion.mc.player.posZ.toString())
-                File(filename).writeText("R " + mc.player.rotationYaw.toString())
+                File(FLocation).writeText("L " + Companion.mc.player.posX.toString() + " " + Companion.mc.player.posZ.toString())
+                File(FRotation).writeText("R " + mc.player.rotationYaw.toString())
             }
         }
         //List for Packet Receive
@@ -70,10 +77,10 @@ internal object NGlink : PluginModule(
             //Check for pearl setting
             if(pearls){
                 //check if packet is CPacketPlayerDigging and is using an item
-                if(it.packet.equals(CPacketPlayerDigging.Action.RELEASE_USE_ITEM))
+                if(it.packet is CPacketPlayerTryUseItem)
                     //if im holding a Pearl then write to file
                     if(mc.player.inventory.currentItem.equals(Items.ENDER_PEARL))
-                        File(filename).writeText("P " + Companion.mc.player.posX.toString() + " " + Companion.mc.player.posZ.toString())
+                        File(FPearls).writeText("P " + Companion.mc.player.posX.toString() + " " + Companion.mc.player.posZ.toString())
                     }
                 }
             }
